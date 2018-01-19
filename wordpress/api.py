@@ -101,8 +101,8 @@ class API(object):
                 request_body = response.request.body
 
         if 'code' in response_json or 'message' in response_json:
-            reason = u" - ".join([
-                unicode(response_json.get(key)) for key in ['code', 'message', 'data'] \
+            reason = " - ".join([
+                str(response_json.get(key)) for key in ['code', 'message', 'data'] \
                 if key in response_json
             ])
 
@@ -113,23 +113,6 @@ class API(object):
             elif 'code' == 'json_oauth1_consumer_mismatch':
                 remedy = "Try deleting the cached credentials at %s" % \
                 self.auth.creds_store
-
-            elif 'code' == 'woocommerce_rest_cannot_view':
-                if not self.auth.query_string_auth:
-                    remedy = "Try enabling query_string_auth"
-                else:
-                    remedy = (
-                        "This error is super generic and can be caused by just "
-                        "about anything. Here are some things to try: \n"
-                        " - Check that the account which as assigned to your "
-                        "oAuth creds has the correct access level\n"
-                        " - Enable logging and check for error messages in "
-                        "wp-content and wp-content/uploads/wc-logs\n"
-                        " - Check that your query string parameters are valid\n"
-                        " - Make sure your server is not messing with authentication headers\n"
-                        " - Try a different endpoint\n"
-                        " - Try enabling HTTPS and using basic authentication\n"
-                    )
 
         response_headers = {}
         if hasattr(response, 'headers'):
