@@ -10,6 +10,8 @@ import re
 
 import posixpath
 
+from functools import reduce
+
 try:
     from urllib.parse import urlencode, quote, unquote, parse_qsl, urlparse, urlunparse
     from urllib.parse import ParseResult as URLParseResult

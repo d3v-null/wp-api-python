@@ -123,7 +123,7 @@ class OAuth(Auth):
             key = consumer_secret
         else:
             key = "%s&%s" % (consumer_secret, token_secret)
-        return key
+        return bytearray(key.encode('utf-8'))
 
     def add_params_sign(self, method, url, params, sign_key=None, **kwargs):
         """ Adds the params to a given url, signs the url with sign_key if provided,
@@ -207,11 +207,8 @@ class OAuth(Auth):
         else:
             raise UserWarning("Unknown signature_method")
 
-        # print "\nstring_to_sign: %s" % repr(string_to_sign)
-        # print "\nkey: %s" % repr(key)
-        sig = HMAC(key, string_to_sign, hmac_mod)
+        sig = HMAC(key, bytearray(string_to_sign.encode('utf-8')), hmac_mod)
         sig_b64 = binascii.b2a_base64(sig.digest())[:-1]
-        # print "\nsig_b64: %s" % sig_b64
         return sig_b64
 
     @classmethod
@@ -469,7 +466,7 @@ class OAuth_3Leg(OAuth):
         }
         try:
             login_form_action, login_form_data = self.get_form_info(login_form_response, 'loginform')
-        except AssertionError, exc:
+        except AssertionError as exc:
             self.parse_login_form_error(
                 login_form_response, exc, **login_form_params
             )
@@ -490,7 +487,7 @@ class OAuth_3Leg(OAuth):
         confirmation_response = authorize_session.post(login_form_action, data=login_form_data, allow_redirects=True)
         try:
             authorize_form_action, authorize_form_data = self.get_form_info(confirmation_response, 'oauth1_authorize_form')
-        except AssertionError, exc:
+        except AssertionError as exc:
             self.parse_login_form_error(
                 confirmation_response, exc, **login_form_params
             )
@@ -542,7 +539,7 @@ class OAuth_3Leg(OAuth):
             creds['access_token_secret'] = self.access_token_secret
         if creds:
             with open(self.creds_store, 'w+') as creds_store_file:
-                json.dump(creds, creds_store_file, ensure_ascii=False, encoding='utf-8')
+                json.dump(creds, creds_store_file, ensure_ascii=False)
 
     def retrieve_access_creds(self):
         """ retrieve the access_token and access_token_secret stored locally. """
