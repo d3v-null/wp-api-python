@@ -94,6 +94,31 @@ class BasicAuth(Auth):
             return HTTPBasicAuth(self.consumer_key, self.consumer_secret)
 
 
+class JWTAuth(Auth):
+    """
+    Just injects an already generated and signed JWT token header
+    in the request headers.
+    It is up to the user to make sure this is sent via SSL.
+    """
+    def __init__(self, requester, consumer_key, consumer_secret, **kwargs):
+        super(JWTAuth, self).__init__(requester, **kwargs)
+        self.consumer_key = consumer_key
+        self.consumer_secret = consumer_secret
+        self.jwt_token = kwargs.pop('jwt_token', None)
+        self.jwt_header_format = kwargs.pop('jwt_header_format',
+                                            u'JWT token="%s"')
+
+    def get_auth_url(self, endpoint_url, method, **kwargs):
+        return endpoint_url
+
+    def __call__(self, request):
+        """
+        Adds an `Authorization` header to the request.
+        """
+        request.headers['Authorization'] = self._header_format % self.jwt_token
+        return request
+
+
 class OAuth(Auth):
     """ Signs string with oauth consumer_key and consumer_secret """
     oauth_version = '1.0'
