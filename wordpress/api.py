@@ -10,7 +10,7 @@ __title__ = "wordpress-api"
 import logging
 from json import dumps as jsonencode
 
-from wordpress.auth import BasicAuth, OAuth, OAuth_3Leg, JWTAuth
+from wordpress.auth import BasicAuth, OAuth, OAuth_3Leg, NoAuth
 from wordpress.helpers import StrUtils, UrlUtils
 from wordpress.transport import API_Requests_Wrapper
 
@@ -34,8 +34,8 @@ class API(object):
             auth_class = BasicAuth
         elif kwargs.get('oauth1a_3leg'):
             auth_class = OAuth_3Leg
-        elif kwargs.get('jwt_auth'):
-            auth_class = JWTAuth
+        elif kwargs.get('no_auth'):
+            auth_class = NoAuth
 
         if kwargs.get('version', '').startswith('wc') and kwargs.get('oauth1a_3leg'):
             self.logger.warn("WooCommerce JSON Api does not seem to support 3leg")
