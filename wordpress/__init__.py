@@ -10,7 +10,7 @@ A Python wrapper for Wordpress and WooCommerce REST APIs.
 """
 
 __title__ = "wordpress"
-__version__ = "1.2.6"
+__version__ = "1.2.8"
 __author__ = "Claudio Sanches @ WooThemes, forked by Derwent"
 __license__ = "MIT"
 
