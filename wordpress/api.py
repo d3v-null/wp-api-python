@@ -3,20 +3,22 @@
 """
 Wordpress API Class
 """
-__title__ = "wordpress-api"
-
-# from requests import request
+from __future__ import unicode_literals
 import logging
 from json import dumps as jsonencode
 
-from wordpress.auth import BasicAuth, OAuth, OAuth_3Leg
+from wordpress.auth import BasicAuth, OAuth, OAuth_3Leg, NoAuth
 from wordpress.helpers import StrUtils, UrlUtils
 from wordpress.transport import API_Requests_Wrapper
+
 
 try:
     UNICODE_EXISTS = bool(type(unicode))
 except NameError:
     unicode = lambda s: str(s)
+
+__title__ = "wordpress-api"
+
 
 
 class API(object):
@@ -38,6 +40,8 @@ class API(object):
             auth_class = BasicAuth
         elif kwargs.get('oauth1a_3leg'):
             auth_class = OAuth_3Leg
+        elif kwargs.get('no_auth'):
+            auth_class = NoAuth
 
         if kwargs.get('version', '').startswith('wc') and kwargs.get('oauth1a_3leg'):
             self.logger.warn(
@@ -162,10 +166,10 @@ class API(object):
 
         msg = "API call to %s returned \nCODE: %s\nRESPONSE:%s \nHEADERS: %s\nREQ_BODY:%s" % (
             request_url,
-            str(response.status_code),
+            unicode(response.status_code),
             UrlUtils.beautify_response(response),
-            str(response_headers),
-            str(request_body)[:1000]
+            unicode(response_headers),
+            unicode(request_body.encode('utf-8'))[:1000]
         )
 
         if reason:

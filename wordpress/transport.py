@@ -33,6 +33,7 @@ class API_Requests_Wrapper(object):
         self.timeout = kwargs.get("timeout", 5)
         self.verify_ssl = kwargs.get("verify_ssl", True)
         self.session = Session()
+        self.headers = kwargs.get("headers", {})
 
     @property
     def is_ssl(self):
@@ -84,6 +85,10 @@ class API_Requests_Wrapper(object):
             "user-agent": "Wordpress API Client-Python/%s" % __version__,
             "accept": "application/json"
         }
+        headers = SeqUtils.combine_ordered_dicts(
+            headers,
+            self.headers
+        )
         if data is not None:
             headers["content-type"] = "application/json;charset=utf-8"
         headers = SeqUtils.combine_ordered_dicts(
