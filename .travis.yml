@@ -10,5 +10,7 @@ python:
 install:
   - pip install .
   - pip install -r requirements-test.txt
-# command to run tests
-script: nosetests
+
+script: py.test --cov=wordpress tests.py
+
+after_success: codecov

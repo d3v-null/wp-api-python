@@ -3,16 +3,22 @@
 """
 Wordpress API Class
 """
-
-__title__ = "wordpress-api"
-
-# from requests import request
+from __future__ import unicode_literals
 import logging
 from json import dumps as jsonencode
 
-from wordpress.auth import BasicAuth, OAuth, OAuth_3Leg
+from wordpress.auth import BasicAuth, OAuth, OAuth_3Leg, NoAuth
 from wordpress.helpers import StrUtils, UrlUtils
 from wordpress.transport import API_Requests_Wrapper
+
+
+try:
+    UNICODE_EXISTS = bool(type(unicode))
+except NameError:
+    unicode = lambda s: str(s)
+
+__title__ = "wordpress-api"
+
 
 
 class API(object):
@@ -34,9 +40,12 @@ class API(object):
             auth_class = BasicAuth
         elif kwargs.get('oauth1a_3leg'):
             auth_class = OAuth_3Leg
+        elif kwargs.get('no_auth'):
+            auth_class = NoAuth
 
         if kwargs.get('version', '').startswith('wc') and kwargs.get('oauth1a_3leg'):
-            self.logger.warn("WooCommerce JSON Api does not seem to support 3leg")
+            self.logger.warn(
+                "WooCommerce JSON Api does not seem to support 3leg")
 
         self.auth = auth_class(**auth_kwargs)
 
@@ -102,17 +111,17 @@ class API(object):
 
         if isinstance(response_json, dict) and ('code' in response_json or 'message' in response_json):
             reason = u" - ".join([
-                unicode(response_json.get(key)) for key in ['code', 'message', 'data'] \
+                unicode(response_json.get(key)) for key in ['code', 'message', 'data']
                 if key in response_json
             ])
 
             if 'code' == 'rest_user_invalid_email':
                 remedy = "Try checking the email %s doesn't already exist" % \
-                request_body.get('email')
+                    request_body.get('email')
 
             elif 'code' == 'json_oauth1_consumer_mismatch':
                 remedy = "Try deleting the cached credentials at %s" % \
-                self.auth.creds_store
+                    self.auth.creds_store
 
             elif 'code' == 'woocommerce_rest_cannot_view':
                 if not self.auth.query_string_auth:
@@ -145,26 +154,29 @@ class API(object):
                     header_api_url = StrUtils.eviscerate(header_api_url, '/')
 
                 if header_api_url and requester_api_url\
-                and header_api_url != requester_api_url:
+                        and header_api_url != requester_api_url:
                     reason = "hostname mismatch. %s != %s" % (
                         header_api_url, requester_api_url
                     )
                     header_url = StrUtils.eviscerate(header_api_url, '/')
-                    header_url = StrUtils.eviscerate(header_url, self.requester.api)
+                    header_url = StrUtils.eviscerate(
+                        header_url, self.requester.api)
                     header_url = StrUtils.eviscerate(header_url, '/')
                     remedy = "try changing url to %s" % header_url
 
         msg = "API call to %s returned \nCODE: %s\nRESPONSE:%s \nHEADERS: %s\nREQ_BODY:%s" % (
             request_url,
-            str(response.status_code),
+            unicode(response.status_code),
             UrlUtils.beautify_response(response),
-            str(response_headers),
-            str(request_body)[:1000]
+            unicode(response_headers),
+            unicode(request_body.encode('utf-8'))[:1000]
         )
+
         if reason:
-            msg += "\nBecause of %s" % reason
+            msg += "\nBecause of %s" % (str(reason.encode('utf8')))
         if remedy:
-            msg += "\n%s" % remedy
+            msg += "\n%s" % (str(remedy))
+
         raise UserWarning(msg)
 
     def __request(self, method, endpoint, data, **kwargs):
@@ -174,7 +186,8 @@ class API(object):
         endpoint_url = self.auth.get_auth_url(endpoint_url, method, **kwargs)
         auth = self.auth.get_auth()
 
-        content_type = kwargs.get('headers', {}).get('content-type', 'application/json')
+        content_type = kwargs.get('headers', {}).get(
+            'content-type', 'application/json')
 
         if data is not None and content_type.startswith('application/json'):
             data = jsonencode(data, ensure_ascii=False).encode('utf-8')

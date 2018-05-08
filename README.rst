@@ -65,7 +65,7 @@ If you have installed from source, then you can test with unittest:
 .. code-block:: bash
 
     pip install -r requirements-test.txt
-    python -m unittest -v tests
+    py.test --cov=wordpress tests.py
 
 Getting started
 ---------------
