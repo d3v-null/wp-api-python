@@ -1,4 +1,7 @@
 **A note from the author:** I no longer do Wordpress work, so I won't have the time to adequately maintain this repo. If you would like to maintain a fork of this repo, and want me to link to your fork here, please `let me know <mailto:derwentx@gmail.com>`_.
+
+One such fork is [this one](https://github.com/Synoptik-Labs/wp-api-python)
+
 thanks!
 
 Wordpress API - Python Client
